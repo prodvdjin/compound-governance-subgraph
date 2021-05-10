@@ -5,6 +5,9 @@ import {
   ProposalQueued,
   ProposalExecuted,
   VoteCast
+} from "../generated/GovernorBravo/GovernorBravo";
+import {
+  VoteCastAlpha
 } from "../generated/GovernorAlpha/GovernorAlpha";
 import {
   DelegateChanged,
@@ -106,7 +109,7 @@ export function handleProposalExecuted(event: ProposalExecuted): void {
   governance.save();
 }
 
-// - event: VoteCast(address,uint256,bool,uint256)
+// - event: VoteCast(address,uint256,uint8,uint256)
 //   handler: handleVoteCast
 
 export function handleVoteCast(event: VoteCast): void {
@@ -258,4 +261,90 @@ export function handleTransfer(event: Transfer): void {
   }
 
   toHolder.save();
+}
+
+// - MARK: Governor Alpha specific events
+// - event: VoteCast(address,uint256,bool,uint256)
+//   handler: handleVoteCastAlpha
+
+export function handleVoteCastAlpha(event: VoteCastAlpha): void {
+  let proposal = getOrCreateProposal(event.params.proposalId.toString());
+  let voteId = event.params.voter
+    .toHexString()
+    .concat("-")
+    .concat(event.params.proposalId.toString());
+  let vote = getOrCreateVote(voteId);
+  let voter = getOrCreateDelegate(event.params.voter.toHexString(), false);
+
+  // checking if the voter was a delegate already accounted for, if not we should log an error
+  // since it shouldn't be possible for a delegate to vote without first being "created"
+  if (voter == null) {
+    log.error("Delegate {} not found on VoteCast. tx_hash: {}", [
+      event.params.voter.toHexString(),
+      event.transaction.hash.toHexString()
+    ]);
+  }
+
+  // Creating it anyway since we will want to account for this event data, even though it should've never happened
+  voter = getOrCreateDelegate(event.params.voter.toHexString());
+
+  vote.proposal = proposal.id;
+  vote.voter = voter.id;
+  vote.votesRaw = event.params.votes;
+  vote.votes = toDecimal(event.params.votes);
+  vote.support = event.params.support ? 1 : 0;
+
+  vote.save();
+
+  if (proposal.status == STATUS_PENDING) {
+    proposal.status = STATUS_ACTIVE;
+    proposal.save();
+  }
+}
+
+
+// - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+//   handler: handleProposalCreated
+
+export function handleProposalCreatedAlpha(event: ProposalCreated): void {
+  let threshold = new BigInt(42);
+  if(event.params.id > threshold) {
+    // Beyond 42, Governor Bravo events are used
+    log.error("Proposal on Governor Alpha after migration", [
+      event.params.id.toHexString(),
+      event.transaction.hash.toHexString()
+    ]);
+    return; 
+   }
+
+  let proposal = getOrCreateProposal(event.params.id.toString());
+  let proposer = getOrCreateDelegate(
+    event.params.proposer.toHexString(),
+    false
+  );
+
+  // checking if the proposer was a delegate already accounted for, if not we should log an error
+  // since it shouldn't be possible for a delegate to propose anything without first being "created"
+  if (proposer == null) {
+    log.error("Delegate {} not found on ProposalCreated. tx_hash: {}", [
+      event.params.proposer.toHexString(),
+      event.transaction.hash.toHexString()
+    ]);
+  }
+
+  // Creating it anyway since we will want to account for this event data, even though it should've never happened
+  proposer = getOrCreateDelegate(event.params.proposer.toHexString());
+
+  proposal.proposer = proposer.id;
+  proposal.targets = event.params.targets as Bytes[];
+  proposal.values = event.params.values;
+  proposal.signatures = event.params.signatures;
+  proposal.calldatas = event.params.calldatas;
+  proposal.startBlock = event.params.startBlock;
+  proposal.endBlock = event.params.endBlock;
+  proposal.description = event.params.description;
+  proposal.status =
+    event.block.number >= proposal.startBlock ? STATUS_ACTIVE : STATUS_PENDING;
+
+  proposal.save();
 }

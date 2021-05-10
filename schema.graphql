@@ -91,7 +91,7 @@ type Vote @entity {
   id: ID!
 
   "Whether the vote is in favour or against the proposal"
-  support: Boolean!
+  support: Int!
 
   "Amount of votes in favour or against expressed in the smallest unit of the CompoundToken"
   votesRaw: BigInt!
