@@ -7,7 +7,7 @@ import {
   VoteCast
 } from "../generated/GovernorBravo/GovernorBravo";
 import {
-  VoteCastAlpha
+  VoteCast as VoteCastAlpha
 } from "../generated/GovernorAlpha/GovernorAlpha";
 import {
   DelegateChanged,
@@ -137,7 +137,7 @@ export function handleVoteCast(event: VoteCast): void {
   vote.voter = voter.id;
   vote.votesRaw = event.params.votes;
   vote.votes = toDecimal(event.params.votes);
-  vote.support = event.params.support;
+  vote.support = event.params.support == 1;
 
   vote.save();
 
@@ -268,6 +268,16 @@ export function handleTransfer(event: Transfer): void {
 //   handler: handleVoteCastAlpha
 
 export function handleVoteCastAlpha(event: VoteCastAlpha): void {
+  let threshold = new BigInt(42);
+  if(event.params.proposalId > threshold) {
+    // Beyond 42, Governor Bravo events are used
+    log.error("Vote on Governor Alpha after migration", [
+      event.params.proposalId.toHexString(),
+      event.transaction.hash.toHexString()
+    ]);
+    return; 
+  }
+
   let proposal = getOrCreateProposal(event.params.proposalId.toString());
   let voteId = event.params.voter
     .toHexString()
@@ -292,7 +302,7 @@ export function handleVoteCastAlpha(event: VoteCastAlpha): void {
   vote.voter = voter.id;
   vote.votesRaw = event.params.votes;
   vote.votes = toDecimal(event.params.votes);
-  vote.support = event.params.support ? 1 : 0;
+  vote.support = event.params.support;
 
   vote.save();
 
