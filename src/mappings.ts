@@ -268,16 +268,6 @@ export function handleTransfer(event: Transfer): void {
 //   handler: handleVoteCastAlpha
 
 export function handleVoteCastAlpha(event: VoteCastAlpha): void {
-  let threshold = new BigInt(42);
-  if(event.params.proposalId > threshold) {
-    // Beyond 42, Governor Bravo events are used
-    log.error("Vote on Governor Alpha after migration", [
-      event.params.proposalId.toHexString(),
-      event.transaction.hash.toHexString()
-    ]);
-    return; 
-  }
-
   let proposal = getOrCreateProposal(event.params.proposalId.toString());
   let voteId = event.params.voter
     .toHexString()
@@ -317,16 +307,6 @@ export function handleVoteCastAlpha(event: VoteCastAlpha): void {
 //   handler: handleProposalCreated
 
 export function handleProposalCreatedAlpha(event: ProposalCreated): void {
-  let threshold = new BigInt(42);
-  if(event.params.id > threshold) {
-    // Beyond 42, Governor Bravo events are used
-    log.error("Proposal on Governor Alpha after migration", [
-      event.params.id.toHexString(),
-      event.transaction.hash.toHexString()
-    ]);
-    return; 
-   }
-
   let proposal = getOrCreateProposal(event.params.id.toString());
   let proposer = getOrCreateDelegate(
     event.params.proposer.toHexString(),
