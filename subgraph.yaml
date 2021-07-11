@@ -1,14 +1,14 @@
 specVersion: 0.0.2
 description: Compound governance subgraph
-repository: https://github.com/arr00/compound-governance-subgraph
+repository: https://github.com/prodvdjin/compound-governance-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: GovernorAlpha
-    network: mainnet
+    network: rinkeby
     source:
-      address: "0xc0da01a04c3f3e0be433606045bb7017a7323e38"
+      address: "0xD76d779be49fE24b1d8369E2ced9d112894CF869"
       abi: GovernorAlpha
       startBlock: 9601459
     mapping:
@@ -40,7 +40,7 @@ dataSources:
     name: GovernorBravo
     network: mainnet
     source:
-      address: "0xc0Da02939E1441F497fd74F78cE7Decb17B66529"
+      address: "0x16e68385487bFd1fb2DF7407B9DfB6944fEf440a"
       abi: GovernorBravo
       startBlock: 12006099
     mapping:
@@ -72,7 +72,7 @@ dataSources:
     name: CompoundToken
     network: mainnet
     source:
-      address: "0xc00e94cb662c3520282e6f5717214004a7f26888"
+      address: "0x8c8D1d31391BD317a2cAff9A7bD2BeA8A2f5B34d"
       abi: CompoundToken
       startBlock: 9601359
     mapping:
