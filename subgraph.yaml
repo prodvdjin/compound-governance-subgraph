@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GovernorAlpha
-    network: rinkeby
+    network: mainnet
     source:
-      address: "0xD76d779be49fE24b1d8369E2ced9d112894CF869"
+      address: "0x7095909b783f72969d3b2408e7b654ff1ab76247"
       abi: GovernorAlpha
-      startBlock: 9601459
+      startBlock: 13009253
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -40,9 +40,9 @@ dataSources:
     name: GovernorBravo
     network: mainnet
     source:
-      address: "0x16e68385487bFd1fb2DF7407B9DfB6944fEf440a"
+      address: "0xc0da02939e1441f497fd74f78ce7decb17b66529"
       abi: GovernorBravo
-      startBlock: 12006099
+      startBlock: 13009253
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -72,9 +72,9 @@ dataSources:
     name: CompoundToken
     network: mainnet
     source:
-      address: "0x8c8D1d31391BD317a2cAff9A7bD2BeA8A2f5B34d"
+      address: "0x62De7d65739d2ac81C12CC30BBB1223c88753C23"
       abi: CompoundToken
-      startBlock: 9601359
+      startBlock: 13009253
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
